@@ -20,5 +20,6 @@ android {
 }
 
 dependencies {
+    compile 'org.roboguice:roboguice:3.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
