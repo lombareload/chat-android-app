@@ -2,26 +2,31 @@ package prodigious.fabian.com.englishchatapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import roboguice.inject.InjectView;
+import java.util.ArrayList;
+import java.util.List;
 
+import prodigious.fabian.com.englishchatapp.model.Chat;
+import prodigious.fabian.com.englishchatapp.model.ChatAdapter;
 
 public class MainActivity extends Activity {
-    @InjectView(R.id.messages_list)
     ListView messages;
-
+    List<Chat> chats = new ArrayList<Chat>();
+    ArrayAdapter<Chat> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         populateListView();
+        adapter = new ChatAdapter(this,R.layout.message, chats);
+        messages.setAdapter(adapter);
     }
 
 
@@ -48,12 +53,16 @@ public class MainActivity extends Activity {
     }
 
     private void populateListView() {
-        String[] items = {"a","b","c"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.message, items);
-        Log.i("english", "adapter: "+adapter);
-        Toast.makeText(this, "adapter: "+adapter, Toast.LENGTH_LONG);
-        Log.i("english", "messages: "+messages);
+        messages = (ListView) findViewById(R.id.messages_list);
 
-        //messages.setAdapter(adapter);
+        chats.add(new Chat(null, "hola"));
+        chats.add(new Chat("yo", "que mas"));
+
+    }
+
+    public void sendMessage(View view) {
+        EditText textInput = (EditText) findViewById(R.id.text_input);
+        adapter.add(new Chat("yo", textInput.getText().toString()));
+        textInput.setText("");
     }
 }
