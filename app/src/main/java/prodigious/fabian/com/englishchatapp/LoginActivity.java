@@ -17,7 +17,8 @@ import prodigious.fabian.com.englishchatapp.model.Chat;
 import prodigious.fabian.com.englishchatapp.model.ChatAdapter;
 import prodigious.fabian.com.englishchatapp.websocket.ChatWebsocketClient;
 
-public class MainActivity extends Activity {
+
+public class LoginActivity extends Activity {
 
     ListView messages;
     List<Chat> chats = new ArrayList<Chat>();
@@ -27,10 +28,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        messages = (ListView) findViewById(R.id.messages_list);
+        setContentView(R.layout.activity_login);
         adapter = new ChatAdapter(this,R.layout.message, chats);
-        populateListView();
         messages.setAdapter(adapter);
         try {
             client = new ChatWebsocketClient(adapter);
@@ -40,16 +39,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
     }
 
@@ -68,14 +62,9 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void populateListView() {
-
-        // TODO query latest messages
-    }
-
-    public void sendMessage(View view) {
-        EditText textInput = (EditText) findViewById(R.id.text_input);
-        client.publishMessage(textInput.getText().toString());
+    public void sendUsername(View view) {
+        EditText textInput = (EditText) findViewById(R.id.username);
+        String username = textInput.getText().toString();
         textInput.setText("");
     }
 }

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import prodigious.fabian.com.englishchatapp.R;
@@ -19,7 +18,6 @@ public class ChatAdapter extends ArrayAdapter<Chat> {
     public ChatAdapter(Context context, int textViewId, List<Chat> chats){
         super(context, textViewId);
         this.chats = chats;
-        Log.e("chats", chats.toString());
     }
     @Override
     public void add(Chat chat) {
@@ -36,7 +34,6 @@ public class ChatAdapter extends ArrayAdapter<Chat> {
             convertView = inflater.inflate(R.layout.message, null);
         }
         Chat message = chats.get(position);
-        Log.e("Chat", message.toString());
         TextView text = (TextView) convertView.findViewById(R.id.message);
         text.setText(message.getMessage());
         return convertView;
