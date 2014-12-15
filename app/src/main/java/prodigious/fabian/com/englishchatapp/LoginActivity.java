@@ -2,6 +2,7 @@ package prodigious.fabian.com.englishchatapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +21,6 @@ import prodigious.fabian.com.englishchatapp.websocket.ChatWebsocketClient;
 
 public class LoginActivity extends Activity {
 
-    ListView messages;
     List<Chat> chats = new ArrayList<Chat>();
     ArrayAdapter<Chat> adapter;
     private ChatWebsocketClient client;
@@ -30,10 +30,9 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         adapter = new ChatAdapter(this,R.layout.message, chats);
-        messages.setAdapter(adapter);
         try {
-            client = new ChatWebsocketClient(adapter);
-            client.execute();
+            client = ChatWebsocketClient.getInstance(this);
+
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -65,6 +64,8 @@ public class LoginActivity extends Activity {
     public void sendUsername(View view) {
         EditText textInput = (EditText) findViewById(R.id.username);
         String username = textInput.getText().toString();
+        Log.e("websocket", "login: " + username);
+        client.login(username);
         textInput.setText("");
     }
 }

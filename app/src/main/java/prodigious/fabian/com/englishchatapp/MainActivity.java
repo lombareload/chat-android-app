@@ -1,7 +1,9 @@
 package prodigious.fabian.com.englishchatapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,10 +35,10 @@ public class MainActivity extends Activity {
         populateListView();
         messages.setAdapter(adapter);
         try {
-            client = new ChatWebsocketClient(adapter);
-            client.execute();
+            client = ChatWebsocketClient.getInstance(this);
+            client.setArrayAdapter(adapter);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e("websocket", "error connecting to server", e);
         }
     }
 

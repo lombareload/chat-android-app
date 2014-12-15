@@ -1,5 +1,7 @@
 package prodigious.fabian.com.englishchatapp.websocket;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -11,24 +13,52 @@ import com.github.nkzawa.socketio.client.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
+import prodigious.fabian.com.englishchatapp.MainActivity;
 import prodigious.fabian.com.englishchatapp.model.Chat;
 
-public class ChatWebsocketClient extends AsyncTask<Void, Chat, Void> implements Emitter.Listener {
+public class ChatWebsocketClient extends AsyncTask<Void, Chat, Void> implements Serializable, Emitter.Listener {
 
+    public final static String CHAT_WEBSOCKET = ChatWebsocketClient.class.getCanonicalName();
     private String username;
     private final JSONObject metaMessage = new JSONObject();
-    private final ArrayAdapter<Chat> messages;
+    private ArrayAdapter<Chat> arrayAdapter;
     private final Socket client;
     private final String JSON_NAME = JSONObject.class.getName();
+    private static ChatWebsocketClient instance;
 
-    public ChatWebsocketClient(ArrayAdapter<Chat> messages) throws URISyntaxException {
+    public static synchronized ChatWebsocketClient getInstance (final Activity context) throws URISyntaxException{
+        if (instance == null){
+            instance = new ChatWebsocketClient(context);
+            instance.execute();
+        }
+        return instance;
+    }
+
+    private ChatWebsocketClient(final Activity context/*, final ArrayAdapter<Chat> arrayAdapter*/) throws URISyntaxException {
         client = IO.socket("http://10.0.2.2:8080");
-        client.on(Socket.EVENT_MESSAGE, this);
+        client.on("chat", this);
+        client.on("login", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject response = (JSONObject) args[0];
+                try {
+                    Log.e("login", response.toString());
+                    String result = response.getString("login").trim();
+                    if("name accepted".equals(result)) {
+                        username = result;
+                        Intent login = new Intent(context, MainActivity.class);
+                        context.startActivity(login);
+                    }
+                } catch (JSONException e) {
+                    Log.e("login", "login error", e);
+                }
 
-        this.messages = messages;
+            }
+        });
     }
 
     @Override
@@ -48,13 +78,27 @@ public class ChatWebsocketClient extends AsyncTask<Void, Chat, Void> implements 
         Log.i("websocket", (args.length > 0 ? args[0].getClass() + " - " : "") + Arrays.toString(args));
     }
 
-    public void publishMessage (String message) {
+    public void publishMessage (final String message) {
         try {
             metaMessage.put("chat", message);
             client.emit(Socket.EVENT_MESSAGE, metaMessage);
         } catch (JSONException e) {
             Log.e("websocket", "error sending message", e);
         }
+    }
+
+    public void login(final String login){
+        username = login;
+        try {
+            metaMessage.put("login", login);
+            client.emit("login", login);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setArrayAdapter(ArrayAdapter<Chat> arrayAdapter) {
+        this.arrayAdapter = arrayAdapter;
     }
 
     @Override
@@ -70,6 +114,8 @@ public class ChatWebsocketClient extends AsyncTask<Void, Chat, Void> implements 
 
     @Override
     protected void onProgressUpdate(Chat... values) {
-        messages.add(values[0]);
+        if(arrayAdapter != null){
+            arrayAdapter.add(values[0]);
+        }
     }
 }
